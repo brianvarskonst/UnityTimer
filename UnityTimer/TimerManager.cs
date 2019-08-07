@@ -3,8 +3,7 @@ using UnityEngine;
 
 namespace UnityTimer
 {
-    public class TimerManager : MonoBehaviour
+    public class TimerManager : Singleton<TimerManager>
     {
-        
     }
 }
