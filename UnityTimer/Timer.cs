@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
+using UnityTimer.Core;
+
 namespace UnityTimer
 {
     /**
@@ -35,20 +37,6 @@ namespace UnityTimer
         
         [SerializeField]
         private bool isDestroyed = false;
-
-        // Hook Class to have access to MonoBehaviour Methods
-        public class MonoBehaviourHook : MonoBehaviour
-        {
-            public Action onUpdate = null;
-
-            private void Update()
-            {
-                if (onUpdate != null)
-                {
-                    onUpdate();
-                }
-            }
-        }
 
         /**
          * Class Constructor
@@ -210,33 +198,6 @@ namespace UnityTimer
         {
             DestroySelf();
             DestroyTimer();
-        }
-
-        public class TimerObject
-        {
-            private float duration;
-            private Action callback;
-
-            public TimerObject(Action _callback, float _duration)
-            {
-                callback = _callback;
-                duration = _duration;
-            }
-
-            public void Update()
-            {
-                Update(Time.deltaTime);
-            }
-
-            public void Update(float time)
-            {
-                duration -= time;
-
-                if (duration <= 0)
-                {
-                    callback();
-                }
-            }
         }
 
         public static TimerObject CreateObject(Action callback, float duration)
