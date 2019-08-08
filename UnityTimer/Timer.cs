@@ -18,7 +18,31 @@ namespace UnityTimer
     {
         [SerializeField]
         private string name;
-        public string Name { get; }
+
+        public string Name
+        {
+            get { return name; }
+        }
+
+        [SerializeField, HideInInspector] 
+        private Guid uid;
+
+        public int ID
+        {
+            get
+            {
+                byte[] bytes = uid.ToByteArray();
+
+                if (BitConverter.IsLittleEndian)
+                {
+                    Array.Reverse(bytes);
+                }
+
+                int id = BitConverter.ToUInt16(bytes, 0);
+                
+                return id;
+            }
+        }
         
         [SerializeField] 
         private float duration;
@@ -51,6 +75,8 @@ namespace UnityTimer
             useUnscaledDeltaTime = _useUnscaledDeltaTime;
             
             isDestroyed = false;
+            
+            uid = System.Guid.NewGuid();
         }
 
         private static List<Timer> activeTimers;
@@ -93,12 +119,9 @@ namespace UnityTimer
                 StopAllWithName(name);
             }
 
-            Debug.Log(name); 
-
+            // Make Sure the Timer Name uses  UpperCamelCase notation, to identify the Timer easier by name
             name = name.FirstCharToUpper();
-            
-            Debug.Log(name);
-            
+
             GameObject TimerObject = new GameObject("Timer" + name, typeof(MonoBehaviourHook));
 
             Timer timer = new Timer(action, duration, TimerObject, name, useUnscaledDeltaTime);

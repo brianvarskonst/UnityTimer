@@ -25,11 +25,11 @@ namespace UnityTimer
             timers.Add(timer);
         }
 
-        public static void Remove(string name)
+        public static void Remove(Timer timer)
         {
             for (int i = 0; i < timers.Count; i++)
             {
-                if (timers[i].Name == name)
+                if (timers[i].ID == timer.ID)
                 {
                     timers.Remove(timers[i]);
                     
