@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+
 using UnityEngine;
 using Object = UnityEngine.Object;
 
@@ -10,8 +11,31 @@ namespace UnityTimer
      *
      * Callback Timer
      */
+    [Serializable]
     public class Timer
     {
+        [SerializeField]
+        private string name;
+        public string Name { get; }
+        
+        [SerializeField] 
+        private float duration;
+        
+        [SerializeField]
+        private Action action;
+
+        [SerializeField]
+        private GameObject gameObject;
+
+        [SerializeField]
+        private bool active;
+        
+        [SerializeField]
+        private bool useUnscaledDeltaTime;
+        
+        [SerializeField]
+        private bool isDestroyed = false;
+
         // Hook Class to have access to MonoBehaviour Methods
         public class MonoBehaviourHook : MonoBehaviour
         {
@@ -25,18 +49,10 @@ namespace UnityTimer
                 }
             }
         }
-        
-        private Action action;
-        private float duration;
-        private string name;
-        
-        private GameObject gameObject;
 
-        private bool active;
-        private bool useUnscaledDeltaTime;
-        
-        private bool isDestroyed = false;
-
+        /**
+         * Class Constructor
+         */
         private Timer(Action _action, float _duration, GameObject _gameObject, string _name, bool _useUnscaledDeltaTime)
         {
             action = _action;
@@ -58,14 +74,15 @@ namespace UnityTimer
             {
                 initGameObject = new GameObject("Timer_Init");
                 activeTimers = new List<Timer>();
-                
-                
             }
         }
 
         public static Timer Create(Action action, float timer)
         {
-            return Create(action, timer, "", false, false);
+            // Set name from Action Method Name
+            string name = action.Method.Name;
+            
+            return Create(action, timer, name, false, false);
         }
         
         public static Timer Create(Action action, float timer, string name)
@@ -79,18 +96,24 @@ namespace UnityTimer
         }
         
 
-        private static Timer Create(Action _action, float _duration, string _name, bool useUnscaledDeltaTime, bool stopAllWithSameName)
+        private static Timer Create(Action action, float duration, string name, bool useUnscaledDeltaTime, bool stopAllWithSameName)
         {
             Init();
 
             if (stopAllWithSameName)
             {
-                StopAllWithName(_name);
+                StopAllWithName(name);
             }
-            
-            GameObject TimerObject = new GameObject("Timer " + _name, typeof(MonoBehaviourHook));
 
-            Timer timer = new Timer(_action, _duration, TimerObject, _name, useUnscaledDeltaTime);
+            Debug.Log(name); 
+
+            name = name.FirstCharToUpper();
+            
+            Debug.Log(name);
+            
+            GameObject TimerObject = new GameObject("Timer" + name, typeof(MonoBehaviourHook));
+
+            Timer timer = new Timer(action, duration, TimerObject, name, useUnscaledDeltaTime);
             
             TimerObject.GetComponent<MonoBehaviourHook>().onUpdate = timer.Update;
             
@@ -181,6 +204,12 @@ namespace UnityTimer
         {
            Object.Destroy(gameObject);
            Remove(this);
+        }
+
+        public void Destroy()
+        {
+            DestroySelf();
+            DestroyTimer();
         }
 
         public class TimerObject
